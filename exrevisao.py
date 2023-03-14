@@ -7,7 +7,7 @@ baseDeDados = [ [0, 'Fa fe fi fo Funk',	'Anira', 'Funk', 2019, '3:05'],
                 [2, 'Rock n Rolo', 'The Buns','Rock',	1984, '4:01' ],
                 [3, 'Grifinoria Girls', 'Katy Potter', 'Pop',	2017, '2:25' ],
                 [4, 'Outra musica', 'Anira', 'Funk', 2019, '3:05'], 
-                [5, 'Cuzinho magro', 'Anira', 'Funk', 2020, '5:10'] ]
+                [5, 'Musica teste', 'Anira', 'Funk', 2020, '5:10'] ]
 
 playlist = []
 
