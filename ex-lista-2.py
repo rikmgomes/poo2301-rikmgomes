@@ -199,7 +199,10 @@ if __name__ == '__main__':
             else:
                 print("\nUsuário já cadastrado!")
         elif (acaoUsuario == '2'):
-            liberado = usuario.consultarDados(liberado)
+            if not login:
+                print("\nÉ necessário se cadastrar primeiro para Consultar os Dados!")
+            else:
+                liberado = usuario.consultarDados(liberado)
         elif (acaoUsuario == '0'):
             terminarExecucao = True
         else:
