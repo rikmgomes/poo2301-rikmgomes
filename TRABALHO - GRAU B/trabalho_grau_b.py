@@ -5,6 +5,14 @@ catalogoGeral = [] #lista com todas as midias
 catalogoEpisodios = [] #lista com todos os episodios
 catalogo = [] #guarda o objeto catalogo
 
+### Comentários:
+###
+### - Não consegui resolver o problema do salvar perfil e acabei notando também que se tiver algum slot vazio
+### seja na lista de favoritos seja na de últimos assistidos, o programa não consegue salvar aquele perfil.
+###
+### - Tirando esse *pequeno* (rs) problema, tá tudo funcionando. Preciso dormir, então deixarei assim já que eu
+### teria que reescrever muita coisa do código pra funcionar 100%.
+
 class Aplicacao:
     def __init__(self):
         self.__tela = 0
@@ -70,7 +78,7 @@ class Aplicacao:
 
         for i in catalogoEpisodios:
             for j in catalogoGeral:
-                if i.getTitulo() == j.getTitulo():
+                if i.getFonte() == j.getTitulo():
                     j.adicionarEpisodio(i)
     
     def carregarUsuarios(self):
@@ -113,21 +121,19 @@ class Aplicacao:
     def finalizar(self):
         print('\n----------------SALVANDO E SAINDO...----------------')
         print()
-        f = open("usuariosteste.csv", 'w', newline='')
+        f = open("usuarios.csv", 'w', newline='')
         writer = csv.writer(f)
         for usuario in self._listaUsuarios:
             writer.writerow(usuario.serializar())
             print("Usuário salvo!")
         f.close()
 
-        f = open("perfisteste.csv", 'w', newline='')
+        f = open("perfis.csv", 'w', newline='')
         writer = csv.writer(f)
         for perfil in self._listaPerfis:
             writer.writerow(perfil.serializar())
             print("Perfil salvo!")
         f.close()
-
-        input("\nPressione qualquer tecla para continuar")
         
     def msgErro(self, codigo):
         if codigo == 1:
@@ -175,7 +181,7 @@ class Aplicacao:
         if self._midiaAtual.getTipo() == "Serie" or self._midiaAtual.getTipo() == "Programa de TV":
             print('----------------MIDIA----------------\n')
             self._midiaAtual.exibirInformacoes()
-            print('1 - Listar Episodios')
+            print('\n1 - Listar Episodios')
             print('2 - Favoritar')
             print('3 - Desfavoritar')
             print('0 - Voltar para o menu anterior\n')
@@ -183,7 +189,7 @@ class Aplicacao:
         else:   
             print('----------------MIDIA----------------')
             self._midiaAtual.exibirInformacoes()
-            print('1 - Assistir')
+            print('\n1 - Assistir')
             print('2 - Favoritar')
             print('3 - Desfavoritar')
             print('0 - Voltar para o menu anterior\n')
@@ -197,7 +203,7 @@ class Aplicacao:
             self._midiaAtual.listarEpisodios(self._temporadaConsulta)
         else:
             self._midiaAtual.listarEpisodios()
-        print('1 - Assistir')
+        print('\n1 - Assistir')
         print('0 - Voltar para o menu anterior\n')
         item = input('Escolha uma opcao: ')
         return item
@@ -298,8 +304,9 @@ class Aplicacao:
         print('\n----------------ADICIONAR PERFIL----------------')
         nome = input("\nDigite o nome do novo perfil: ")
         idade = input("Digite a idade do novo perfil: ")
-        perfil = Perfil(nome,idade)
+        perfil = Perfil(self._usuarioAtual.getNome(),nome,idade)
         self._usuarioAtual.adicionarPerfil(perfil)
+        #self._listaPerfis.append(perfil)
         input('\nPressione qualquer tecla para continuar...')
 
     def removerPerfil(self):
@@ -386,7 +393,7 @@ class Aplicacao:
         print("\nID - TITULO DA MIDIA")
         for i in midias:
             print(f"{i.getId()} - {i.getTitulo()}")
-        resposta = input("Deseja ver mais informacoes sobre uma midia (S/N)?")
+        resposta = input("\nDeseja ver mais informacoes sobre uma midia (S/N)?")
         if resposta == "S":
             self._idConsulta = input("Digite o ID da midia: ")
             for i in catalogoGeral:
@@ -404,7 +411,8 @@ class Aplicacao:
             if self._midiaAtual.getTipo() == "Serie" or self._midiaAtual.getTipo() == "Programa de TV":
                 if self._midiaAtual.getTipo() == "Serie":
                     print('\n---------------->>> LISTAR EPISODIOS----------------')
-                    t = input("Digite o número da temporada desejada: ")
+                    t = input("\nDigite o número da temporada desejada: ")
+                    self._temporadaConsulta = t
                 self.__tela = 4
             else:
                 print('\n----------------ASSISTINDO TRANSMISSÃO----------------')
@@ -554,9 +562,20 @@ class Perfil:
     def listarMidiasApropriadas(self,tipo):
         listaInicial = catalogo[0].obterLista(tipo)
         listaFinal = []
+        #classificacao ===   L | 10 | 14 | 18 (L-10, 10-14, 14-18 e 18+)
+        idade = int(self._idade)
         for i in listaInicial:
-            if i.getClassificacao() <= self._idade:
+            if idade >= 18:
                 listaFinal.append(i)
+            elif idade < 10: #livre para todos
+                if i.getClassificacao() == 'L':
+                    listaFinal.append(i)
+            elif idade >= 10 and idade < 14: #10-11-12-13
+                if i.getClassificacao() == 'L' or i.getClassificacao() == '10':
+                    listaFinal.append(i)
+            elif idade >= 14 and idade < 18: #14-15-16-17
+                if i.getClassificacao() == 'L' or i.getClassificacao() == '10' or i.getClassificacao() == '14':
+                    listaFinal.append(i)
         return listaFinal
 
     def assistirMidia(self, midia):
@@ -597,10 +616,16 @@ class Perfil:
             return midia
     
     def serializar(self):
-        #### faltou apenas mudar as listas pra serializar
-        ### favoritos e ultimo assistidos estão com objetos da classe midia
-        ### é necessário transformar de volta nos indices pra salvar corretamente
-        ### e, se não tiver nada no slot, preencher com ''
+        j = 0
+        for midia in self._listaFavoritos:
+            self._listaFavoritos[j] = midia.getId()
+            j+=1
+        
+        j = 0
+        for midia in self._listaUltimosAssistidos:
+            self._listaUltimosAssistidos[j] = midia.getId()
+            j+=1
+        
         return (f"{self._usuario}",f"{self._nome}",f"{self._idade}",f"{self._listaFavoritos[0]}",f"{self._listaFavoritos[1]}",f"{self._listaFavoritos[2]}",f"{self._listaFavoritos[3]}",f"{self._listaFavoritos[4]}",f"{self._listaFavoritos[5]}",f"{self._listaFavoritos[6]}",f"{self._listaFavoritos[7]}",f"{self._listaFavoritos[8]}",f"{self._listaFavoritos[9]}",f"{self._listaUltimosAssistidos[0]}",f"{self._listaUltimosAssistidos[1]}",f"{self._listaUltimosAssistidos[2]}",f"{self._listaUltimosAssistidos[3]}",f"{self._listaUltimosAssistidos[4]}",f"{self._listaUltimosAssistidos[5]}",f"{self._listaUltimosAssistidos[6]}",f"{self._listaUltimosAssistidos[7]}",f"{self._listaUltimosAssistidos[8]}",f"{self._listaUltimosAssistidos[9]}")
     
     def desserializar(self,dados):
@@ -611,13 +636,12 @@ class Perfil:
         self._nome = linha[1]
         self._idade = linha[2]
         for j in range(3,13):
-            if linha[j] != '':
-                indice = int(linha[j])
-                self._listaFavoritos.append(catalogoGeral[indice])
+            indice = int(linha[j])
+            self._listaFavoritos.append(catalogoGeral[indice])
+
         for j in range(13,23):
-            if linha[j] != '':
-                indice = int(linha[j])
-                self._listaUltimosAssistidos.append(catalogoGeral[indice])
+            indice = int(linha[j])
+            self._listaUltimosAssistidos.append(catalogoGeral[indice])
 
 class Midia:
     def __init__(self, id=None, tipo=None, titulo=None, genero=None, ano=None, classificacao=None):
@@ -674,6 +698,9 @@ class Episodio:
 
     def getTitulo(self):
         return self._titulo
+
+    def getFonte(self):
+        return self._fonte
     
     #Nro,Serie,Titulo,Temporada
     # 0   1      2        3
@@ -696,7 +723,7 @@ class Serie(Midia):
     def adicionarEpisodio(self,episodio):
         self._listaEpisodiosPorTemporada.append(episodio)
     
-    def exibirInformações(self):
+    def exibirInformacoes(self):
         super().exibirInformacoes()
         print(f'Nº Temporadas = {self._temporadas}')
     

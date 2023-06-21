@@ -1,8 +1,8 @@
-0,Serie,Stranger Things,Suspense,2016,16,4,The Duffer Brothers,,,,
-1,Serie,Friends,Comedia,1994,12,10,,,,,
-2,Serie,Breaking Bad,Drama,2008,18,5,Vince Gilligan,,,,
-3,Serie,Game of Thrones,Fantasia,2011,18,8,,,,,
-4,Serie,The Crown,Drama,2016,16,5,,,,,
+0,Serie,Stranger Things,Suspense,2016,16,4,The Duffer Brothers,A,A,A,0
+1,Serie,Friends,Comedia,1994,12,10,A,A,A,A,0
+2,Serie,Dark,X,2008,18,1,Vince Gilligan,A,A,A,10
+3,Serie,Game of Thrones,Fantasia,2011,18,8,A,A,A,A,0
+4,Serie,The Crown,Drama,2016,16,5,A,A,A,A,0
 5,Filme,Pulp Fiction,Crime,1994,18,,Quentin Tarantino,Lawrence Bender,,,
 6,Filme,Inception,Ficcao Científica,2010,14,,Christopher Nolan,Emma Thomas,,,
 7,Filme,The Shawshank Redemption,Drama,1994,16,,Frank Darabont,Niki Marvin,,,
